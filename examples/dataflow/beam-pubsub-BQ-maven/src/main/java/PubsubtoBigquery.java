@@ -47,7 +47,9 @@ public class PubsubtoBigquery {
         PCollection<TableRow> tableroescollections = merged_source.apply(ParDo.of(new ConvertJsonStringToTableRows()));
 
         /**write output to BQ table*/
-        tableroescollections.apply(BigQueryIO.writeTableRows().to(tablespec));
+        tableroescollections.apply(BigQueryIO.writeTableRows().to(tablespec)
+                .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_NEVER)
+                .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_APPEND));
 
     }
 
