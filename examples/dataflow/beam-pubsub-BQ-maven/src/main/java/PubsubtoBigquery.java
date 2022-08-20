@@ -61,7 +61,7 @@ public class PubsubtoBigquery {
                 TableRow tableRow = new TableRow();
                 try {
                     String jsonString = processContext.element();
-
+                    System.out.println(jsonString);
                     byte[] messages_bytes = jsonString.getBytes(StandardCharsets.UTF_8);
                     InputStream inputStream = new ByteArrayInputStream(messages_bytes);
                     tableRow = TableRowJsonCoder.of().decode(inputStream, Coder.Context.OUTER);
