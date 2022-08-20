@@ -20,8 +20,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PubsubtoBigquery {
+    private static final Logger LOG = LoggerFactory.getLogger(PubsubtoBigquery.class);
+
     public static void main(String[] args) {
         final String subscription1 = "projects/hardy-position-352014/subscriptions/orders-stream-sub";
         final String subscription2 = "projects/hardy-position-352014/subscriptions/orders-others-sub";
@@ -61,7 +65,7 @@ public class PubsubtoBigquery {
                 TableRow tableRow = new TableRow();
                 try {
                     String jsonString = processContext.element();
-                    System.out.println(jsonString);
+                    LOG.info(jsonString);
                     byte[] messages_bytes = jsonString.getBytes(StandardCharsets.UTF_8);
                     InputStream inputStream = new ByteArrayInputStream(messages_bytes);
                     tableRow = TableRowJsonCoder.of().decode(inputStream, Coder.Context.OUTER);
