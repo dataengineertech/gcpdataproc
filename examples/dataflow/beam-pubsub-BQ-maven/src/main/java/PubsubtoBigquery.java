@@ -29,6 +29,7 @@ public class PubsubtoBigquery {
         /** create PipelineOptions from the args */
         PipelineOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(PipelineOptions.class);
 
+
         /**create the pipeline from pipeline options*/
         Pipeline pipeline = Pipeline.create(options);
 
@@ -50,7 +51,7 @@ public class PubsubtoBigquery {
         tableroescollections.apply(BigQueryIO.writeTableRows().to(tablespec)
                 .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_NEVER)
                 .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_APPEND));
-
+        pipeline.run();
     }
 
 
@@ -63,7 +64,7 @@ public class PubsubtoBigquery {
 
                     byte[] messages_bytes = jsonString.getBytes(StandardCharsets.UTF_8);
                     InputStream inputStream = new ByteArrayInputStream(messages_bytes);
-                    tableRow = TableRowJsonCoder.of().decode(inputStream);
+                    tableRow = TableRowJsonCoder.of().decode(inputStream, Coder.Context.OUTER);
 
                 }
                 catch (Exception e){
