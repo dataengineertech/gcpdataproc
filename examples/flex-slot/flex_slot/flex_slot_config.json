@@ -1,8 +1,10 @@
-"project_id" : "dev",
-"dataset_id" : "flex_slot_metrics",
-"bucket" : "bq-flex-slot-config",
-"location": "EU",
-"reservation_id" : "preprocessor",
-"slot _capacity" : 100,
-"updated_slot_capacity" : 100,
-"threshold" : 6500
+{
+  "project_id": "dev",
+  "dataset_id": "flex_slot_metrics",
+  "bucket": "bq-flex-slot-config",
+  "location": "US",
+  "reservation_id": "preprocessor",
+  "slot _capacity": 100,
+  "updated_slot_capacity": 100,
+  "threshold": 6500
+}
