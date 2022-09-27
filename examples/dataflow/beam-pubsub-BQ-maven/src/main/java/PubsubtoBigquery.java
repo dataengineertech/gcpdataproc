@@ -27,9 +27,8 @@ public class PubsubtoBigquery {
     private static final Logger LOG = LoggerFactory.getLogger(PubsubtoBigquery.class);
 
     public static void main(String[] args) {
-        final String subscription1 = "projects/hardy-position-352014/subscriptions/orders-stream-sub";
-        final String subscription2 = "projects/hardy-position-352014/subscriptions/orders-others-sub";
-        final String tablespec = "hardy-position-352014.ecommerce.orders-streams-others";
+        final String subscription1 = "projects/adroit-nectar-363812/subscriptions/orders-stream-sub";
+        final String tablespec = "adroit-nectar-363812.ecommerce.orders-streams-others";
         /** create PipelineOptions from the args */
         PipelineOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(PipelineOptions.class);
 
@@ -37,19 +36,13 @@ public class PubsubtoBigquery {
         /**create the pipeline from pipeline options*/
         Pipeline pipeline = Pipeline.create(options);
 
-        /** read data from both subscriptions with fixed window of 5 secs */
+        /** read data from subscription with fixed window of 5 secs */
         PCollection<String> message_source1 = pipeline.apply(PubsubIO.<String>readStrings().fromSubscription(subscription1))
                 .apply(Window.<String>into(FixedWindows.of(Duration.standardSeconds(5))).discardingFiredPanes());
-        PCollection<String> message_source2 = pipeline.apply(PubsubIO.<String>readStrings().fromSubscription(subscription2))
-                .apply(Window.<String>into(FixedWindows.of(Duration.standardSeconds(5))).discardingFiredPanes());
 
-        /** merge both the sources*/
-
-        PCollectionList<String> list_collections = PCollectionList.of(message_source1).and(message_source2);
-        PCollection<String> merged_source = list_collections.apply(Flatten.<String>pCollections());
 
         /** convert Pcollection to TableRows */
-        PCollection<TableRow> tableroescollections = merged_source.apply(ParDo.of(new ConvertJsonStringToTableRows()));
+        PCollection<TableRow> tableroescollections = message_source1.apply(ParDo.of(new ConvertJsonStringToTableRows()));
 
         /**write output to BQ table*/
         tableroescollections.apply(BigQueryIO.writeTableRows().to(tablespec)

@@ -4,10 +4,10 @@ from airflow.providers.google.cloud.operators.dataproc import DataprocCreateClus
 from airflow.providers.google.cloud.operators.dataproc import DataprocDeleteClusterOperator
 from airflow.contrib.operators.dataproc_operator import DataProcPySparkOperator
 default_dag_args = {
-    'start_date': datetime.datetime(2022, 6, 28),
+    'start_date': datetime.datetime(2022, 9, 12),
 }
 
-PROJECT_ID = 'hardy-position-352014'
+PROJECT_ID = 'useful-circle-361303'
 REGION = 'us-west1'
 CLUSTER_NAME = 'test-dataproc-cluster'
 CLUSTER_CONFIG = {
@@ -26,7 +26,7 @@ CLUSTER_CONFIG = {
 PYSPARK_JOB = {
     "reference": {"project_id": PROJECT_ID},
     "placement": {"cluster_name": CLUSTER_NAME},
-    "pyspark_job": {"main_python_file_uri": f"gs://orders-customers-bucket/orders-payment/pyspark-overwrite_table.py", \
+    "pyspark_job": {"main_python_file_uri": f"gs://orders-12345/code/pyspark-dataproc.py", \
     "jar_files":f"gs://spark-lib/bigquery/spark-bigquery-latest_2.12.jar"},
 }
 
@@ -50,7 +50,7 @@ with models.DAG(
 
         submit_pyspark = DataProcPySparkOperator(
             task_id='run_dataproc_pyspark',
-            main='gs://orders-customers-bucket/orders-payment/pyspark-overwrite_table.py',
+            main='gs://orders-12345/code/pyspark-dataproc.py',
             cluster_name=CLUSTER_NAME,
             dataproc_pyspark_jars='gs://spark-lib/bigquery/spark-bigquery-latest_2.12.jar',
             region=REGION
