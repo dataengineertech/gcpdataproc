@@ -84,7 +84,7 @@ if __name__ == __main__:
         query_job = client.query(sql)
         for row in query_job:
             interval_time = str(row["interval_time"])
-            slot_consumed = str(row["sLot_consumed"])
+            slot_consumed = str(row["slot_consumed"])
         print(slot_consumed)
         logger.warning('avg slot consumed at {0} is {1} in BQ' .format(interval_time, slot_consumed)) #6200
         logger.warning(' checking if aggregated slot consumed is greater than threshold')

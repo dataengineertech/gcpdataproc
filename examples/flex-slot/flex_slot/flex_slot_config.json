@@ -1,10 +1,10 @@
 {
-  "project_id": "dev",
+  "project_id": "adroit-nectar-363812",
   "dataset_id": "flex_slot_metrics",
-  "bucket": "bq-flex-slot-config",
+  "bucket": "bq-flex-slot1",
   "location": "US",
-  "reservation_id": "preprocessor",
+  "reservation_id": "test_flex",
   "slot _capacity": 100,
   "updated_slot_capacity": 100,
-  "threshold": 6500
+  "threshold": 500
 }
