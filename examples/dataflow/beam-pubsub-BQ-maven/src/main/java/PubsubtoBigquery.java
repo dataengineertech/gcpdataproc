@@ -27,8 +27,8 @@ public class PubsubtoBigquery {
     private static final Logger LOG = LoggerFactory.getLogger(PubsubtoBigquery.class);
 
     public static void main(String[] args) {
-        final String subscription1 = "projects/adroit-nectar-363812/subscriptions/orders-stream-sub";
-        final String tablespec = "adroit-nectar-363812.ecommerce.orders-streams-others";
+        final String subscription1 = "projects/adroit-nectar-363812/subscriptions/test-pubsub1-sub";
+        final String tablespec = "adroit-nectar-363812.testflex.test-dataflow";
         /** create PipelineOptions from the args */
         PipelineOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(PipelineOptions.class);
 
