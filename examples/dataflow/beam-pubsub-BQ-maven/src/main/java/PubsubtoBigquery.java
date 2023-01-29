@@ -28,7 +28,7 @@ public class PubsubtoBigquery {
 
     public static void main(String[] args) {
         final String subscription1 = "projects/adroit-nectar-363812/subscriptions/test-pubsub1-sub";
-        final String tablespec = "adroit-nectar-363812.testflex.test-dataflow";
+        final String tablespec = "adroit-nectar-363812.testflex.test-dataflow1";
         /** create PipelineOptions from the args */
         PipelineOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(PipelineOptions.class);
 
