@@ -1,0 +1,54 @@
+
+
+
+mvn -Pdataflow-runner compile exec:java -Dexec.mainClass=PubsubtoBigquery  -Dexec.args=" --project=adroit-nectar-363812 --jobName=beam-orders-1234  --stagingLocation=gs://orders-customers-bucket1/staging --gcpTempLocation=gs://orders-customers-bucket1/dataflow/temp --runner=DataflowRunner --region=us-west1"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+gcloud auth activate-service-account --key-file=C:\Users\lenovo\Downloads\hardy-position-352014-c3df6e5e11d3.json
+
+
+export GOOGLE_APPLICATION_CREDENTIALS="C:\Users\lenovo\Downloads\hardy-position-352014-c3df6e5e11d3.json"
+
+tripathygcppractice@gmail.c
+
+
+
+
+mvn -Pdataflow-runner compile exec:java -Dexec.mainClass=PubsubtoBigquery  -Dexec.args=" --project=hardy-position-352014 --jobName=test_dataflow --serviceAccount=orders-analytics-131@hardy-position-352014.iam.gserviceaccount.com --stagingLocation=gs://orders-customers-bucket/staging --gcpTempLocation=gs://orders-customers-bucket/dataflow_test/temp --runner=DataflowRunner --region=us-west1"
+
+mvn compile exec:java -Dexec.mainClass=org.apache.beam.examples.WordCount \
+    -Dexec.args="--runner=DataflowRunner --project=hardy-position-352014 \
+                 --region=us-west1 \
+                 --gcpTempLocation=gs://orders-customers-bucket/dataflow_test/temp \
+                 --stagingLocation=gs://orders-customers-bucket/staging \
+                 --inputFile=gs://apache-beam-samples/shakespeare/* --output=gs://orders-customers-bucket/counts" \
+    -Pdataflow-runner
