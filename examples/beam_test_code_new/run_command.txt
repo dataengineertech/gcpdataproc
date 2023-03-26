@@ -1,1 +1,1 @@
-mvn -Pdataflow-runner compile exec:java -Dexec.mainClass=org.example.Main  -Dexec.args=" --project=authentic-reach-373703 --jobName=beam-test  --stagingLocation=gs://beam_test/staging --gcpTempLocation=gs://beam_test/dataflow/temp --runner=DataflowRunner --region=us-west1"
+mvn -Pdataflow-runner compile exec:java -Dexec.mainClass=org.example.Main  -Dexec.args=" --project=bionic-flux-379904 --jobName=beam-test  --stagingLocation=gs://beam_test_gr/staging --gcpTempLocation=gs://beam_test_gr/dataflow/temp --runner=DataflowRunner --region=us-west1"
