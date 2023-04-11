@@ -1,5 +1,6 @@
 package org.example;
 
+import org.apache.arrow.flatbuf.Int;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.options.PipelineOptions;
@@ -124,10 +125,11 @@ public class Main {
         //groupbykey -end
 
         //cogroupbykey - start
-        PCollection<KV<String, Integer>> pt1 = pipeline.apply(Create.of(KV.of("apple", 1), KV.of("banana", 2), KV.of("apple", 9), KV.of("orange", 7), KV.of("banana", 7)));
+        /*
+        PCollection<KV<String, String>> pt1 = pipeline.apply(Create.of(KV.of("apple", "US"), KV.of("banana", "poland"), KV.of("apple", "china"), KV.of("orange", "mexico"), KV.of("banana", "ireland")));
         PCollection<KV<String, String>> pt2 = pipeline.apply(Create.of(KV.of("apple", "kashmir"), KV.of("banana", "maha"), KV.of("orange", "MP")));
 
-        final TupleTag<Integer> t1 = new TupleTag<>();
+        final TupleTag<String> t1 = new TupleTag<>();
         final TupleTag<String> t2 = new TupleTag<>();
         PCollection<KV<String, CoGbkResult>> result =
                 KeyedPCollectionTuple.of(t1, pt1).and(t2, pt2)
@@ -138,20 +140,122 @@ public class Main {
                 KV<String, CoGbkResult> e = c.element();
                 CoGbkResult result = e.getValue();
                 // Retrieve all integers associated with this key from pt1
-                Iterable<Integer> allIntegers = result.getAll(t1);
-                for (int i : allIntegers){
-                    System.out.println(i);
+                Map<String, ArrayList<String>> mp_int = new HashMap<String, ArrayList<String>>();
+                Map<String, ArrayList<String>> mp_string = new HashMap<String, ArrayList<String>>();
+
+                //System.out.println(e.getKey());
+                String key = e.getKey();
+                Iterable<String> allstrings = result.getAll(t1);
+                for (String i : allstrings) {
+                    if (mp_int.containsKey(key)) {
+                        mp_int.get(key).add(i);
+                    } else {
+                        ArrayList<String> ad = new ArrayList<String>();
+                        ad.add(i);
+                        mp_int.put(key, ad);
+                    }
+                    //System.out.println(i);
                 }
-                // Retrieve the string associated with this key from pt2.
-                // Note: This will fail if multiple values had the same key in pt2.
                 //String string = e.getOnly(t2);
                 Iterable<String> allString = result.getAll(t2);
-                for (String s: allString){
-                    System.out.println(s);
+                for (String s : allString) {
+                    //System.out.println(s);
+                    if (mp_string.containsKey(key)) {
+                        mp_string.get(key).add(s);
+                    } else {
+                        ArrayList<String> ad = new ArrayList<String>();
+                        ad.add(s);
+                        mp_string.put(key, ad);
+                    }
                 }
-                c.output("hello");
+                String output1 = result.getOnly(t2);
+                //System.out.println("output:");
+                //System.out.println(output1);
+                Map<String, ArrayList<ArrayList<String>>> mp_final = new HashMap<String, ArrayList<ArrayList<String>>>();
+                for (String key_ : mp_int.keySet()) {
+                if (mp_final.containsKey(key_)) {
+                    mp_final.get(key_).add(mp_int.get(key_));
+                } else {
+                    ArrayList<ArrayList<String>> ad = new ArrayList<ArrayList<String>>();
+                    ad.add(mp_int.get(key_));
+                    mp_final.put(key, ad);
+                }
+            }
+                for (String key_ : mp_string.keySet()) {
+                    if (mp_final.containsKey(key_)) {
+                        mp_final.get(key_).add(mp_string.get(key_));
+                    } else {
+                        ArrayList<ArrayList<String>> ad = new ArrayList<ArrayList<String>>();
+                        ad.add(mp_string.get(key_));
+                        mp_final.put(key, ad);
+                    }
+                }
+                //System.out.println(Collections.singletonList(mp_int));
+                //System.out.println(Collections.singletonList(mp_string));
+                System.out.println(Collections.singletonList(mp_final));
+                c.output(output1);
+            }}));*/
+
+        ////cogroupbykey - end
+        //Pardo - start
+        /*PCollection<String> fruits = pipeline.apply(Create.of("apple", "banana", "orange", "avocado", "pineapple"));
+        PCollection<String> op = fruits.apply(ParDo.of(new DoFn<String, String>(){
+            @ProcessElement
+            public void processElement(ProcessContext c) {
+                String fruits_collection = c.element();
+                String fruits = fruits_collection+"- it's a fruit";
+                System.out.println(fruits);
+                c.output(fruits);
+
+            }}));*/
+
+        //Pardo - end
+
+        //Pardo input/output IO- start
+       /* PCollection<String> fruits = pipeline.apply(TextIO.read().from("gs://beam_test_gr/input_text_files/df_input_int.txt"));
+        PCollection<String> op = fruits.apply(ParDo.of(new DoFn<String, String>(){
+            @ProcessElement
+            public void processElement(ProcessContext c) {
+                String numbers_collection = c.element();
+                String[] arr = numbers_collection.split(",");
+                String[] arr_new = new String[arr.length];
+                int i = 0;
+                for (String s : arr){
+                    int val = Integer.parseInt(s.trim());
+                    val += 3;
+                    arr_new[i] = String.valueOf(val);
+                    i+=1;
+
+                }
+                String array_str = String.join(",", arr_new);
+                System.out.println(array_str);
+                c.output(array_str);
+
             }}));
-        //}
+        op.apply(TextIO.write().to("gs://beam_test_gr/output/op.txt"));*/
+
+        //Pardo input/output IO- end
+        //group by key - start
+        PCollection<KV<String, String>> mapped = pipeline.apply(Create.of(KV.of("cat", "1"), KV.of("dog", "2"),
+                KV.of("dog", "3"), KV.of("and", "4"), KV.of("and", "5")));
+        PCollection<KV<String, Iterable<String>>> reduced =
+                mapped.apply(GroupByKey.<String, String>create());
+        PCollection<String> grp = reduced.apply(ParDo.of(new DoFn<KV<String, Iterable<String>>,String>(){
+            @ProcessElement
+            public void processElement(ProcessContext c) {
+                //KV<String, Iterable<String>> word = c.element();
+                Map<String, ArrayList<String>> outputmap = new HashMap<String, ArrayList<String>>();
+                String key = c.element().getKey();
+                Iterable<String> val = c.element().getValue();
+                String val_string = val.toString();
+                System.out.println(key+","+val_string);
+                c.output(key+","+val_string);
+                //Integer length = word.length();
+
+            }}));
+        //group by key - end
+
+
 
 
         pipeline.run();
