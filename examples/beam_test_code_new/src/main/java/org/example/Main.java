@@ -236,24 +236,122 @@ public class Main {
 
         //Pardo input/output IO- end
         //group by key - start
-        PCollection<KV<String, String>> mapped = pipeline.apply(Create.of(KV.of("cat", "1"), KV.of("dog", "2"),
-                KV.of("dog", "3"), KV.of("and", "4"), KV.of("and", "5")));
-        PCollection<KV<String, Iterable<String>>> reduced =
-                mapped.apply(GroupByKey.<String, String>create());
-        PCollection<String> grp = reduced.apply(ParDo.of(new DoFn<KV<String, Iterable<String>>,String>(){
+        // PCollection<KV<String, String>> mapped = pipeline.apply(Create.of(KV.of("cat", "1"), KV.of("dog", "2"),
+        //         KV.of("dog", "3"), KV.of("and", "4"), KV.of("and", "5")));
+        // PCollection<KV<String, Iterable<String>>> reduced =
+        //         mapped.apply(GroupByKey.<String, String>create());
+        // PCollection<String> grp = reduced.apply(ParDo.of(new DoFn<KV<String, Iterable<String>>,String>(){
+        //     @ProcessElement
+        //     public void processElement(ProcessContext c) {
+        //         //KV<String, Iterable<String>> word = c.element();
+        //         Map<String, ArrayList<String>> outputmap = new HashMap<String, ArrayList<String>>();
+        //         String key = c.element().getKey();
+        //         Iterable<String> val = c.element().getValue();
+        //         String val_string = val.toString();
+        //         System.out.println(key+","+val_string);
+        //         c.output(key+","+val_string);
+        //         //Integer length = word.length();
+
+        //     }}));
+        //group by key - end
+        //cogroupbykey - start
+        /*PCollection<KV<String, String>> pt1 = pipeline.apply(Create.of(KV.of("apple", "US"), KV.of("banana", "poland"),
+                KV.of("apple", "china"), KV.of("orange", "mexico"), KV.of("banana", "ireland")));
+        PCollection<KV<String, String>> pt2 = pipeline.apply(Create.of(KV.of("apple", "kashmir"),
+                KV.of("banana", "maha"), KV.of("orange", "MP")));
+
+        final TupleTag<String> t1 = new TupleTag<>();
+        final TupleTag<String> t2 = new TupleTag<>();
+        PCollection<KV<String, CoGbkResult>> result =
+                KeyedPCollectionTuple.of(t1, pt1).and(t2, pt2)
+                        .apply(CoGroupByKey.create());
+        PCollection<String> op = result.apply(ParDo.of(new DoFn<KV<String, CoGbkResult>, String>() {
             @ProcessElement
             public void processElement(ProcessContext c) {
-                //KV<String, Iterable<String>> word = c.element();
-                Map<String, ArrayList<String>> outputmap = new HashMap<String, ArrayList<String>>();
-                String key = c.element().getKey();
-                Iterable<String> val = c.element().getValue();
-                String val_string = val.toString();
-                System.out.println(key+","+val_string);
-                c.output(key+","+val_string);
-                //Integer length = word.length();
+                KV<String, CoGbkResult> e = c.element();
+                CoGbkResult result = e.getValue();
+                // Retrieve all integers associated with this key from pt1
+                Map<String, ArrayList<String>> mp_int = new HashMap<String, ArrayList<String>>();
+                Map<String, ArrayList<String>> mp_string = new HashMap<String, ArrayList<String>>();
 
-            }}));
-        //group by key - end
+                //System.out.println(e.getKey());
+                String key = e.getKey();
+                System.out.println("print Co/GBKOutput");
+                System.out.println(key+","+result.toString());
+
+                c.output(result.toString());
+            }}));*/
+        //cogroupbykey - end
+        //combine - start
+        /*PCollection<Integer> pc = pipeline.apply(Create.of(1, 8, 9, 10));
+        PCollection<Integer> sum = pc.apply(
+                Combine.globally(Sum.ofIntegers()));
+        PCollection<Integer> op = sum.apply(ParDo.of(new DoFn<Integer, Integer>() {
+            @ProcessElement
+            public void processElement(ProcessContext c) {
+                Integer val = c.element();
+                System.out.println(val);
+
+                c.output(val);
+            }}));*/
+        //combine - end
+//        //combine per key - start
+//        PCollection<KV<String, Double>> salesRecords = pipeline.apply(Create.of(KV.of("abc", 2.6), KV.of("def", 8.9),
+//                KV.of("abc", 9.8), KV.of("def", 9.9), KV.of("gbv", 6.7)));
+//        //calculate sum by applying combine on the Pcollection
+//        PCollection<KV<String, Double>> totalSalesPerPerson =
+//                salesRecords.apply(Combine.<String, Double, Double>perKey(
+//                        Sum.ofDoubles()));
+//        //Print to see the results
+//        PCollection<Double> op = totalSalesPerPerson.apply(ParDo.of(new DoFn<KV<String, Double>, Double>() {
+//            @ProcessElement
+//            public void processElement(ProcessContext c) {
+//                KV<String, Double> e = c.element();
+//                String key = e.getKey();
+//                Double val = e.getValue();
+//                System.out.println(key+","+val);
+//
+//                c.output(e.getValue());
+//            }}));
+//
+//        //combine per key - end
+
+//        PCollection<String> pc1 = pipeline.apply(Create.of("apple", "banana", "orange"));
+//        PCollection<String> pc2 = pipeline.apply(Create.of("avocado", "pineapple"));
+//        PCollection<String> pc3 = pipeline.apply(Create.of("blackberry", "strawberry"));
+//
+//        PCollectionList<String> collections = PCollectionList.of(pc1).and(pc2).and(pc3);
+//        PCollection<String> merged = collections.apply(Flatten.<String>pCollections());
+//        PCollection<String> op = merged.apply(ParDo.of(new DoFn<String, String>(){
+//            @ProcessElement
+//            public void processElement(ProcessContext c) {
+//                String fruits_collection = c.element();
+//                System.out.println(fruits_collection);
+//                c.output(fruits_collection);
+//
+//            }}));
+
+        //side input
+
+        PCollection<String> fruits = pipeline.apply(Create.of("apple", "banana", "orange"));
+        PCollection<Integer> wordLengths = pipeline.apply(Create.of(3, 1, 5));
+        final PCollectionView<Integer> maxWordLengthCutOffView =
+                wordLengths.apply(Combine.globally(Max.ofIntegers()).asSingletonView());
+
+        PCollection<String> wordsBelowCutOff =
+                fruits.apply(ParDo
+                        .of(new DoFn<String, String>() {
+                            @ProcessElement
+                            public void processElement(@Element String word, OutputReceiver<String> out, ProcessContext c) {
+                                // In our DoFn, access the side input.
+                                int lengthCutOff = c.sideInput(maxWordLengthCutOffView);
+                                if (word.length() <= lengthCutOff) {
+                                    System.out.println(word);
+                                    out.output(word);
+                                }
+                            }
+                        }).withSideInputs(maxWordLengthCutOffView)
+                );
 
 
 
