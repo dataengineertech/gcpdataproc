@@ -333,25 +333,75 @@ public class Main {
 
         //side input
 
-        PCollection<String> fruits = pipeline.apply(Create.of("apple", "banana", "orange"));
-        PCollection<Integer> wordLengths = pipeline.apply(Create.of(3, 1, 5));
-        final PCollectionView<Integer> maxWordLengthCutOffView =
-                wordLengths.apply(Combine.globally(Max.ofIntegers()).asSingletonView());
+        // PCollection<String> fruits = pipeline.apply(Create.of("apple", "banana", "orange"));
+        // PCollection<Integer> wordLengths = pipeline.apply(Create.of(3, 1, 5));
+        // final PCollectionView<Integer> maxWordLengthCutOffView =
+        //         wordLengths.apply(Combine.globally(Max.ofIntegers()).asSingletonView());
 
-        PCollection<String> wordsBelowCutOff =
-                fruits.apply(ParDo
-                        .of(new DoFn<String, String>() {
-                            @ProcessElement
-                            public void processElement(@Element String word, OutputReceiver<String> out, ProcessContext c) {
-                                // In our DoFn, access the side input.
-                                int lengthCutOff = c.sideInput(maxWordLengthCutOffView);
-                                if (word.length() <= lengthCutOff) {
-                                    System.out.println(word);
-                                    out.output(word);
-                                }
-                            }
-                        }).withSideInputs(maxWordLengthCutOffView)
-                );
+        // PCollection<String> wordsBelowCutOff =
+        //         fruits.apply(ParDo
+        //                 .of(new DoFn<String, String>() {
+        //                     @ProcessElement
+        //                     public void processElement(@Element String word, OutputReceiver<String> out, ProcessContext c) {
+        //                         // In our DoFn, access the side input.
+        //                         int lengthCutOff = c.sideInput(maxWordLengthCutOffView);
+        //                         if (word.length() <= lengthCutOff) {
+        //                             System.out.println(word);
+        //                             out.output(word);
+        //                         }
+        //                     }
+        //                 }).withSideInputs(maxWordLengthCutOffView)
+        //         );
+        // additional outputs -start
+//        PCollection<String> words = pipeline.apply(Create.of("apple", "banana", "orange"));
+//        final int wordLengthCutOff = 10;
+//        final TupleTag<String> wordsBelowCutOffTag =   new TupleTag<String>(){};
+//        final TupleTag<Integer> wordLengthsAboveCutOffTag =  new TupleTag<Integer>(){};
+//        final TupleTag<String> markedWordsTag =   new TupleTag<String>(){};
+//        PCollectionTuple results =  words.apply(ParDo
+//                        .of(new DoFn<String, String>() {
+//                            @ProcessElement
+//                            public void processElement(@Element String word, OutputReceiver<String> out, ProcessContext c) {
+//                                if (word.length() > 5) {
+//                                    System.out.println(word);
+//                                    c.output(wordsBelowCutOffTag, word);
+//                                }else {
+//                                    c.output(markedWordsTag, word);
+//                                }
+//                                int length = word.length();
+//                                if (length > 5) {
+//                                    c.output(wordLengthsAboveCutOffTag, length);
+//                                }
+//                            }
+//                        })
+//                        .withOutputTags(wordsBelowCutOffTag,
+//                                TupleTagList.of(wordLengthsAboveCutOffTag)
+//                                        .and(markedWordsTag)));
+//
+//        PCollection<String> wordsaboveCutoff = results.get(wordsBelowCutOffTag);
+//        PCollection<String> wordsBelowCutoff = results.get(wordsBelowCutOffTag);
+//        PCollection<Integer> wordLengthCutoff = results.get(wordLengthsAboveCutOffTag);
+//
+//        wordsaboveCutoff.apply(ParDo.of(new DoFn<String, String>(){
+//            @ProcessElement
+//            public void processElement(ProcessContext c) {
+//                String fruits_collection = c.element();
+//                System.out.println("above cutoff fruits");
+//                System.out.println(fruits_collection);
+////                c.output(fruits_collection);
+//
+//            }}));
+
+        // additional outputs - end
+        //composite transforms - start
+        PCollection<String> line = pipeline.apply(Create.of("apache beam is apache beam"));
+        PCollection<KV<String, Long>> results =  line.apply(new CountWords());
+        results.apply(ParDo.of(new DoFn<KV<String, Long>, String>(){
+            @ProcessElement
+            public void processElement(ProcessContext c) {
+                KV<String, Long> wordcount = c.element();
+                System.out.println(wordcount.getKey() +"->"+wordcount.getValue());
+            }}));
 
 
 
@@ -361,4 +411,34 @@ public class Main {
 
 
 }
+    
+    static class ExtractWordsFn extends DoFn<String, String> {
+
+        @ProcessElement
+        public void processElement(ProcessContext c) {
+            String lines = c.element();
+            String arr[] = lines.split(" ");
+            for (String element : arr){
+                c.output(element);
+            }
+
+
+        }
+    }
+    public static class CountWords extends PTransform<PCollection<String>,
+            PCollection<KV<String, Long>>> {
+        @Override
+        public PCollection<KV<String, Long>> expand(PCollection<String> lines) {
+
+            // Convert lines of text into individual words.
+            PCollection<String> words = lines.apply(
+                    ParDo.of(new ExtractWordsFn()));
+
+            // Count the number of times each word occurs.
+            PCollection<KV<String, Long>> wordCounts =
+                    words.apply(Count.<String>perElement());
+
+            return wordCounts;
+        }
+    }
     }
